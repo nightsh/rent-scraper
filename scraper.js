@@ -1,7 +1,14 @@
 const request = require('request');
 const cheerio = require('cheerio');
 const async   = require('async');
-const format  = require('util').format;
+const sqlite  = require('sqlite3').verbose();
+
+const db = new sqlite.Database('./data.sqlite', (err) => {
+  if (err) {
+    console.error(err.message);
+  }
+  console.log('Connected to the rents database.');
+});
 
 const numberOfRooms = [1, 2];
 const minPrice      = 100;
@@ -33,25 +40,34 @@ const buildQuery = function(numberOfRooms) {
 };
 
 async.eachLimit(numberOfRooms, concurrency, function (rooms, next) {
-    const url = buildQuery(rooms);
-    request(url, function (err, response, body) {
-      if (err) throw err;
-      const $ = cheerio.load(body);
-      let result = {};
-      $('td.offer').each(function () {
-        let link  = $(this).find('a.detailsLink.link').attr('href') || '';
-        let title = $(this).find('a.detailsLink.link>strong').text() || '';
-        let price = $(this).find('p.price>strong').text();
+  const url = buildQuery(rooms);
+  request(url, function (err, response, body) {
+    if (err) throw err;
+    const $ = cheerio.load(body);
+    let result = {};
+    $('td.offer').each(function () {
+      let link  = $(this).find('a.detailsLink.link').attr('href') || '';
+      let title = $(this).find('a.detailsLink.link>strong').text() || '';
+      let price = $(this).find('p.price>strong').text();
 
-        let id = link.split('-').pop().split('.html')[0];
+      let id = link.split('-').pop().split('.html')[0];
 
-        result[id] = {
-          title,
-          link,
-          price
-        };
-      });
-      console.log(result);
-      next();
+      db.run(
+        "INSERT INTO data (id, title, link, price) VALUES (?,?,?,?)",
+        [id, title, link, price],
+        function(err) {
+         if (err) {
+            return console.error(err.message);
+          }
+        }
+      );
+      // result[id] = {
+      //   title,
+      //   link,
+      //   price
+      // };
     });
+    // console.log(result);
+    next();
+  });
 });
