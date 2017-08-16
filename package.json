@@ -1,0 +1,25 @@
+{
+  "name": "rent-scraper",
+  "version": "1.0.0",
+  "description": "Scrape rent offers",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/nightsh/rent-scraper.git"
+  },
+  "author": "Victor Nițu <victor@thesponge.eu>",
+  "license": "WTFPL",
+  "bugs": {
+    "url": "https://github.com/nightsh/rent-scraper/issues"
+  },
+  "homepage": "https://github.com/nightsh/rent-scraper#readme",
+  "dependencies": {
+    "async": "^2.5.0",
+    "cheerio": "^1.0.0-rc.2",
+    "request": "^2.81.0",
+    "util": "^0.10.3"
+  }
+}
